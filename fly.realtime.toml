@@ -1,0 +1,31 @@
+# Optional Fly deploy for realtime (alternative to Railway).
+# 1) fly apps create agentmesh-realtime  (pick a unique name)
+# 2) Replace `app` below with that name
+# 3) fly secrets set DATABASE_URL=postgresql://... REALTIME_INTERNAL_SECRET=...
+# 4) Optional: fly secrets set REDIS_URL=redis://...
+# 5) fly deploy --config fly.realtime.toml
+
+app = "agentmesh-realtime-replace-me"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile.realtime"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[http_service.checks]]
+  interval = "15s"
+  timeout = "2s"
+  grace_period = "10s"
+  method = "GET"
+  path = "/health"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

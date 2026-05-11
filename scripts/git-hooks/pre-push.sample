@@ -1,0 +1,17 @@
+#!/bin/sh
+# AgentMesh — optional Git hook: run sync whenever you `git push`.
+# Install from repo root:
+#   cp scripts/git-hooks/pre-push.sample .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+#
+# Requires in repo root: .agentmesh.json (from web) + AGENTMESH_TOKEN in environment
+# when you launch git from your terminal, OR .agentmesh/sync.json from `agentmesh-sync connect`.
+#
+# This repo: uses npm workspace `agentmesh-sync`. From monorepo root:
+ROOT=$(git rev-parse --show-toplevel)
+cd "$ROOT" || exit 0
+
+if ! npm exec -w agentmesh-sync -- agentmesh-sync push; then
+  echo "agentmesh-sync: failed — fix config or set AGENTMESH_HOOK_STRICT=0 to ignore" >&2
+  test "$AGENTMESH_HOOK_STRICT" = "1" && exit 1
+fi
+exit 0

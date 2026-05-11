@@ -1,0 +1,91 @@
+{
+  "name": "agentmesh",
+  "displayName": "AgentMesh",
+  "description": "Sync the current workspace to AgentMesh and open the workspace in the browser.",
+  "version": "0.3.0",
+  "publisher": "agentmesh",
+  "private": true,
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "AgentMesh",
+      "properties": {
+        "agentmesh.apiBaseUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "AgentMesh web base URL (no trailing slash). Overrides optional repo-root .agentmesh.json if empty."
+        },
+        "agentmesh.workspaceId": {
+          "type": "string",
+          "default": "",
+          "description": "Workspace id from the web console. Usually set via .agentmesh.json."
+        },
+        "agentmesh.contextToken": {
+          "type": "string",
+          "default": "",
+          "description": "Optional workspace Bearer token. Prefer AgentMesh: Sign in with Browser to store the token in VS Code Secret Storage instead of writing it here."
+        },
+        "agentmesh.projectId": {
+          "type": "string",
+          "default": "",
+          "description": "Optional cloud Project id to overwrite on each sync. First sync may create one and write it back into .agentmesh.json if present."
+        },
+        "agentmesh.syncOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "After saving a file, debounce and sync the workspace folder to AgentMesh (same as Sync command)."
+        },
+        "agentmesh.syncOnSaveDebounceMs": {
+          "type": "number",
+          "default": 2000,
+          "description": "Milliseconds to wait after the last save before auto-sync (when syncOnSave is on)."
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "agentmesh.syncWorkspace",
+        "key": "ctrl+shift+y",
+        "mac": "cmd+shift+y",
+        "when": "workspaceFolderCount > 0"
+      }
+    ],
+    "commands": [
+      {
+        "command": "agentmesh.signInWithBrowser",
+        "title": "AgentMesh: Sign in with Browser (device code)"
+      },
+      {
+        "command": "agentmesh.reloadBinding",
+        "title": "AgentMesh: Reload .agentmesh.json"
+      },
+      {
+        "command": "agentmesh.syncWorkspace",
+        "title": "AgentMesh: Push to Cloud (Sync Current Folder)"
+      },
+      {
+        "command": "agentmesh.selectProject",
+        "title": "AgentMesh: Select Project for Sync"
+      },
+      {
+        "command": "agentmesh.openChat",
+        "title": "AgentMesh: Open Workspace in Browser"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npm run compile && npx --yes @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.6.3"
+  }
+}

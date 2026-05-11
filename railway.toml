@@ -1,0 +1,13 @@
+# Realtime service only (Neon stays external). Do not use this file for Vercel.
+# In Railway: New Project → Deploy from repo → set variables (see docs/DEPLOY.md).
+# If Railway picks the wrong root, set Root Directory to repository root (.).
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "npx prisma generate"
+
+[deploy]
+startCommand = "npm run start -w realtime"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"

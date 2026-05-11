@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id         String   @id @default(cuid())
+  name       String
+  inviteCode String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  members           WorkspaceMember[]
+  invites           WorkspaceInvite[]
+  projects          Project[]
+  tasks             Task[]
+  edges             ContextEdge[]
+  agentChatThreads  AgentChatThread[]
+  scopedSyncTokens  ScopedSyncToken[]
+  activities        WorkspaceActivity[]
+}
+
+model ScopedSyncToken {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  tokenHash   String   @unique
+  label       String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model WorkspaceInvite {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  inviterUserId   String
+  // Set when invitee already has an account; filled on accept if invite was email-only.
+  inviteeUserId   String?
+  // Lowercase email for magic-link invites (including before the user registers).
+  inviteeEmail    String?
+  status          String    @default("pending")
+  createdAt       DateTime  @default(now())
+  // Magic-link: SHA-256 hex of invite secret (never store plaintext token)
+  acceptTokenHash String?   @unique
+  expiresAt       DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([inviteeUserId, status])
+  @@index([inviteeEmail, status])
+  @@index([workspaceId])
+}
+
+// OAuth 2.0 device flow — extension / CLI pairing without pasting tokens
+model DeviceAuthSession {
+  id             String   @id @default(cuid())
+  deviceCodeHash String   @unique
+  userCode       String   @unique
+  userId         String?
+  workspaceId    String?
+  contextToken   String?
+  status         String   @default("pending")
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+}
+
+model WorkspaceMember {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  userId       String
+  displayName  String?
+  role         String    @default("member") // owner | member
+  agentConfig  Json      @default("{}")
+  contextToken String    @unique
+  joinedAt     DateTime  @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+}
+
+model Project {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  ownerUserId      String
+  name             String
+  sourceType       String // git | local | live_agent
+  sourceUrl        String?
+  summary          String?
+  fileTree         Json?
+  modules          Json?
+  exposedInterfaces Json?
+  vectorNamespace  String? @unique
+  sharingEnabled   Boolean   @default(true)
+  fileTreeShared   Boolean   @default(true)
+  snippetsShared   Boolean   @default(true)
+  indexingStatus   String    @default("pending") // pending | indexing | ready | error | offline
+  indexError       String?
+  lastSyncedAt     DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  chunks    EmbeddingChunk[]
+
+  @@index([workspaceId])
+  @@index([ownerUserId])
+}
+
+model WorkspaceActivity {
+  id          String   @id @default(cuid())
+  workspaceId String
+  actorUserId String
+  projectId   String
+  projectName String
+  sourceType  String?
+  kind        String
+  detail      String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt(sort: Desc)])
+}
+
+model EmbeddingChunk {
+  id         String   @id @default(cuid())
+  projectId  String
+  sourcePath String
+  chunkIndex Int
+  excerpt    String   @db.Text
+  embedding  Json?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model ContextEdge {
+  id            String   @id @default(cuid())
+  workspaceId   String
+  fromProjectId String
+  toProjectId   String
+  relationType  String
+  confidence    Float
+  discoveredBy  String
+  verified      Boolean  @default(false)
+  evidence      Json?
+  createdAt     DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  workspaceId String
+  title       String
+  goal        String
+  phase       String   @default("context_discovery")
+  state       Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  messages  CollaborationMessage[]
+
+  @@index([workspaceId])
+}
+
+model CollaborationMessage {
+  id          String   @id @default(cuid())
+  workspaceId String
+  taskId      String?
+  messageId   String   @unique
+  type        String
+  fromAgent   String
+  toTarget    String
+  content     Json
+  createdAt   DateTime @default(now())
+
+  task Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, taskId])
+}
+
+model OAuthConnection {
+  id           String    @id @default(cuid())
+  userId       String
+  provider     String
+  accessToken  String    @db.Text
+  refreshToken String?
+  scope        String?
+  expiresAt    DateTime?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
+}
+
+model User {
+  id           String   @id
+  email        String?  @unique
+  passwordHash String?
+  displayName  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions       Session[]
+  oidcIdentities OidcIdentity[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model OidcIdentity {
+  id        String   @id @default(cuid())
+  userId    String
+  issuer    String
+  subject   String
+  email     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([issuer, subject])
+  @@index([userId])
+}
+
+model AgentListing {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  provider    String
+  description String   @db.Text
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model AgentChatThread {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  title       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  messages  AgentChatMessage[]
+
+  @@index([workspaceId, userId])
+}
+
+model AgentChatMessage {
+  id          String   @id @default(cuid())
+  threadId    String
+  role        String
+  content     String   @db.Text
+  toolName    String?
+  toolCallId  String?
+  toolPayload Json?
+  createdAt   DateTime @default(now())
+
+  thread AgentChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+}
+
+model AgentUsageLedger {
+  id          String   @id @default(cuid())
+  userId      String
+  workspaceId String
+  kind        String
+  units       Int      @default(1)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([workspaceId, createdAt])
+}
