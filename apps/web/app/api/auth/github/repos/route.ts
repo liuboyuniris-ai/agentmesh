@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         error: "github_not_connected",
-        message: "连接 GitHub OAuth 后即可浏览仓库列表。",
+        message: "Connect GitHub OAuth to browse your repositories.",
       },
       { status: 401 }
     );

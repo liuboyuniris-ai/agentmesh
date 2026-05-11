@@ -62,9 +62,9 @@ export async function GET(
       kind: r.kind,
       kindLabel:
         r.kind === ACTIVITY_KIND_INDEX_READY
-          ? "索引已更新（可检索）"
+          ? "Index updated (searchable)"
           : r.kind === ACTIVITY_KIND_INDEX_ERROR
-            ? "索引失败"
+            ? "Index failed"
             : r.kind,
       detail: r.detail,
       createdAt: r.createdAt.toISOString(),

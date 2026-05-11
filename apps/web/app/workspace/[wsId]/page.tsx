@@ -12,12 +12,12 @@ import {
   buildMcpConfigJsonString,
   NODE_DIST_PLACEHOLDER,
 } from "@/lib/mcp/antigravityConfig";
+import { useJsonHeaders } from "@/hooks/useActorUserId";
+import { WorkspaceServerImports } from "./WorkspaceServerImports";
 
 const MCP_DIST_FOR_SNIPPET =
   process.env.NEXT_PUBLIC_MCP_DIST_ABSOLUTE_FOR_SNIPPET?.trim() ||
   NODE_DIST_PLACEHOLDER;
-import { useJsonHeaders } from "@/hooks/useActorUserId";
-import { WorkspaceServerImports } from "./WorkspaceServerImports";
 
 type WsPayload = {
   id: string;
@@ -47,7 +47,7 @@ type WsPayload = {
 
 export default function WorkspaceHomePage() {
   return (
-    <Suspense fallback={<div className="p-8 text-zinc-400">加载中…</div>}>
+    <Suspense fallback={<div className="p-8 text-zinc-400">Loading…</div>}>
       <WorkspaceHomePageContent />
     </Suspense>
   );
@@ -110,7 +110,7 @@ function WorkspaceHomePageContent() {
     setInviteOk(null);
     const raw = inviteHandle.trim();
     if (!raw) {
-      setErr("请填写对方的 handle 或邮箱");
+      setErr("Enter the invitee’s handle or email");
       return;
     }
     const res = await fetch(`/api/workspaces/${wsId}/invites`, {
@@ -134,10 +134,10 @@ function WorkspaceHomePageContent() {
     let ok =
       j.message ??
       (emailed
-        ? "邀请已发出（邮件已发送，对方可从邮件中的链接加入）。"
-        : "邀请已创建（未发邮件时可在下方复制接受链接发给对方）。");
+        ? "Invitation sent (email delivered; they can join from the link)."
+        : "Invitation created (if email wasn’t sent, copy the accept link below).");
     if (j.acceptUrl) {
-      ok += ` 接受链接：${j.acceptUrl}`;
+      ok += ` Accept link: ${j.acceptUrl}`;
     }
     setInviteOk(ok);
     setInviteHandle("");
@@ -145,7 +145,7 @@ function WorkspaceHomePageContent() {
   }
 
   function formatSyncedAt(iso: string | null | undefined) {
-    if (!iso) return "尚未完成同步/索引";
+    if (!iso) return "Not synced / indexed yet";
     try {
       const d = new Date(iso);
       if (Number.isNaN(d.getTime())) return iso;
@@ -158,15 +158,15 @@ function WorkspaceHomePageContent() {
   function indexingProgressHint(status: string): string {
     switch (status) {
       case "pending":
-        return "进度：等待首次推送（CLI init / push、网页导入、或可选 IDE 扩展）。";
+        return "Status: waiting for first push (CLI init/push, web import, or optional IDE extension).";
       case "indexing":
-        return "进度：正在索引（切块、嵌入），通常数十秒～数分钟；可稍后点「刷新状态」。";
+        return "Status: indexing (chunk + embed)—often seconds to a few minutes; use “Refresh status”.";
       case "ready":
-        return "进度：已完成，可被 MCP / HTTP 检索。";
+        return "Status: ready—searchable via MCP / HTTP.";
       case "error":
-        return "进度：已中断，请根据下方错误重试 push 并刷新本页。";
+        return "Status: stopped—fix the error below, push again, and refresh this page.";
       default:
-        return `进度：状态 ${status}`;
+        return `Status: ${status}`;
     }
   }
 
@@ -176,12 +176,12 @@ function WorkspaceHomePageContent() {
       setCopied(label);
       setTimeout(() => setCopied((c) => (c === label ? null : c)), 2000);
     } catch {
-      setErr("无法写入剪贴板，请手动复制。");
+      setErr("Clipboard unavailable—copy manually.");
     }
   }
 
   if (!ws) {
-    return <div className="p-8 text-zinc-400">加载中…</div>;
+    return <div className="p-8 text-zinc-400">Loading…</div>;
   }
 
   const onboardingParam = searchParams.get("onboarding") === "1";
@@ -208,7 +208,7 @@ function WorkspaceHomePageContent() {
       "env": {
         "AGENTMESH_API_BASE_URL": "${origin || "http://localhost:3000"}",
         "AGENTMESH_WORKSPACE_ID": "${wsId}",
-        "AGENTMESH_TOKEN": "<本页 context token，勿提交到 Git>"
+        "AGENTMESH_TOKEN": "<context token from this page—do not commit>"
       }
     }
   }
@@ -225,21 +225,22 @@ function WorkspaceHomePageContent() {
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 p-6 lg:grid-cols-[1fr_320px]">
-      {/* min-w-0: 避免长行 <pre> 把 grid 列撑破，连带把下方 SVG 103% 宽放大 */}
+      {/* min-w-0: long <pre> lines won’t blow out the grid column */}
       <div className="min-w-0 space-y-6">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold">{ws.name}</h1>
             <p className="mt-1 text-xs text-zinc-500">
-              代码通过 <strong className="font-medium text-zinc-400">GitHub 授权</strong>{" "}
-              导入并自动索引。在编辑器里用 <strong className="font-medium text-zinc-400">MCP</strong> 读队友已上云的项目：见{" "}
+              Import code with <strong className="font-medium text-zinc-400">GitHub</strong>—we clone
+              and index automatically. Use <strong className="font-medium text-zinc-400">MCP</strong>{" "}
+              in your editor to read teammates’ shared projects: see the{" "}
               <Link className="text-violet-400 underline" href="/settings/advanced/docs#collab-mainline">
-                协作主线
+                collaboration guide
               </Link>
-              ；Token / 片段在下方「高级」。
+              ; token and snippets under <strong>Advanced</strong> below.
             </p>
             <p className="mt-1 text-xs text-zinc-500">
-              邀请码{" "}
+              Invite code{" "}
               <code className="rounded bg-zinc-900 px-1">{ws.inviteCode}</code>
             </p>
           </div>
@@ -248,16 +249,16 @@ function WorkspaceHomePageContent() {
               className="text-sm text-violet-400 underline"
               href="/settings/advanced/docs#collab-mainline"
             >
-              协作主线（MCP）
+              Collaboration (MCP)
             </Link>
             <Link
               className="text-sm text-emerald-400 underline"
               href={`/workspace/${wsId}?onboarding=1`}
             >
-              + 导入 GitHub 仓库
+              + Import GitHub repo
             </Link>
             <Link className="text-sm text-zinc-400 underline" href="/settings/advanced/docs">
-              高级文档
+              Docs
             </Link>
             <Link className="text-sm text-zinc-400 underline" href="/dashboard">
               ← Dashboard
@@ -280,7 +281,7 @@ function WorkspaceHomePageContent() {
 
         {ws.projects.length > 0 ? (
           <section className="space-y-2">
-            <h2 className="text-sm font-medium text-zinc-400">同步与索引</h2>
+            <h2 className="text-sm font-medium text-zinc-400">Sync & indexing</h2>
             {ws.projects.map((p) => (
               <ProjectSyncRow
                 key={p.id}
@@ -295,44 +296,47 @@ function WorkspaceHomePageContent() {
 
         <details className="rounded-lg border border-zinc-800 bg-zinc-950/40">
           <summary className="cursor-pointer select-none p-3 text-xs font-medium text-zinc-400">
-            高级 · 权限说明 / CLI / MCP / Token / 网页导入
+            Advanced · permissions / CLI / MCP / token / web import
           </summary>
           <div className="space-y-4 border-t border-zinc-800 p-3">
             <div className="space-y-2 text-[11px] leading-relaxed text-zinc-500">
               <p>
-                <strong className="font-medium text-zinc-400">写 Workspace</strong>
-                ：成员通过 GitHub 导入、本地推送或 Token；写入绑定项目所有者。
+                <strong className="font-medium text-zinc-400">Write</strong>: members import via
+                GitHub, push locally, or use a token; writes are scoped to project owners.
               </p>
               <p>
-                <strong className="font-medium text-zinc-400">读索引</strong>：成员可使用 MCP / HTTP
-                检索已共享项目（见 <code className="rounded bg-zinc-900 px-1">sharingEnabled</code>）。
+                <strong className="font-medium text-zinc-400">Read index</strong>: members can use MCP
+                or HTTP to search shared projects (see{" "}
+                <code className="rounded bg-zinc-900 px-1">sharingEnabled</code>).
               </p>
             </div>
 
             <div className="rounded-lg border border-violet-900/40 bg-violet-950/10 p-3">
-              <h3 className="text-xs font-medium text-violet-200">CLI / MCP / Token（可选）</h3>
+              <h3 className="text-xs font-medium text-violet-200">CLI / MCP / token (optional)</h3>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-zinc-300">
             <li>
-              <strong className="font-medium text-zinc-400">主路径</strong>：在本页复制 Context Token →{" "}
-              <code className="rounded bg-zinc-900 px-1">export AGENTMESH_TOKEN=…</code>，再按{" "}
+              <strong className="font-medium text-zinc-400">Main path</strong>: copy the Context Token
+              on this page →{" "}
+              <code className="rounded bg-zinc-900 px-1">export AGENTMESH_TOKEN=…</code>, then follow{" "}
               <Link className="text-violet-300 underline" href="/settings/advanced/docs#quickstart">
-                高级文档
+                the docs
               </Link>{" "}
-              配置 MCP 或 CLI（{" "}
-              <code className="rounded bg-zinc-900 px-1">.agentmesh.json</code> 模板可复制下方按钮）。
+              to configure MCP or CLI (copy the{" "}
+              <code className="rounded bg-zinc-900 px-1">.agentmesh.json</code> template below).
             </li>
             <li>
-              <strong className="font-medium text-zinc-400">MCP</strong>：将下方 JSON 合并进宿主配置（Claude
-              Code、Codex、其他 MCP 客户端）；用 Context Token 作{" "}
-              <code className="rounded bg-zinc-900 px-1">AGENTMESH_TOKEN</code>。
+              <strong className="font-medium text-zinc-400">MCP</strong>: merge the JSON below into
+              your host config (Claude Code, Codex, any MCP client). Use the Context Token as{" "}
+              <code className="rounded bg-zinc-900 px-1">AGENTMESH_TOKEN</code>.
             </li>
             <li>
-              <strong className="font-medium text-zinc-400">可选 · VS Code</strong>：安装{" "}
-              <code className="rounded bg-zinc-900 px-1">extensions/agentmesh-vscode</code>，根目录{" "}
-              <code className="rounded bg-zinc-900 px-1">.agentmesh.json</code>；终端里{" "}
-              <code className="rounded bg-zinc-900 px-1">export AGENTMESH_TOKEN=…</code>（勿把 Token
-              写入仓库）。命令面板 <strong>AgentMesh: Push to cloud</strong> 或{" "}
-              <code className="rounded bg-zinc-900 px-1">agentmesh.syncOnSave</code>。
+              <strong className="font-medium text-zinc-400">Optional · VS Code</strong>: install{" "}
+              <code className="rounded bg-zinc-900 px-1">extensions/agentmesh-vscode</code>, add{" "}
+              <code className="rounded bg-zinc-900 px-1">.agentmesh.json</code> at the repo root; in a
+              terminal run{" "}
+              <code className="rounded bg-zinc-900 px-1">export AGENTMESH_TOKEN=…</code> (never commit
+              the token). Command palette <strong>AgentMesh: Push to cloud</strong> or{" "}
+              <code className="rounded bg-zinc-900 px-1">agentmesh.syncOnSave</code>.
             </li>
           </ol>
 
@@ -354,8 +358,8 @@ function WorkspaceHomePageContent() {
               }
             >
               {copied === "mcpnpx"
-                ? "已复制"
-                : "一键复制 mcp_config（npx · 已发 npm 时用）"}
+                ? "Copied"
+                : "Copy mcp_config (npx · when package is on npm)"}
             </button>
             <button
               type="button"
@@ -377,28 +381,29 @@ function WorkspaceHomePageContent() {
               }
             >
               {copied === "mcpnode"
-                ? "已复制"
-                : "一键复制 mcp_config（node · 本仓库开发）"}
+                ? "Copied"
+                : "Copy mcp_config (node · monorepo dev)"}
             </button>
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
-            粘贴到 Cursor / Antigravity 的 MCP 原始 JSON（或{" "}
+            Paste into Cursor / Antigravity raw MCP JSON (or{" "}
             <code className="rounded bg-zinc-900 px-1">~/.gemini/antigravity/mcp_config.json</code>
-            ）。若文件里<strong className="font-medium text-zinc-400">已有</strong>其他{" "}
-            <code className="rounded bg-zinc-900 px-1">mcpServers</code>，请<strong className="font-medium text-zinc-400">
-              合并
-            </strong>
-            ：只把其中的 <code className="rounded bg-zinc-900 px-1">agentmesh</code> 块放进你的{" "}
-            <code className="rounded bg-zinc-900 px-1">mcpServers</code>，勿覆盖整文件。
-            <strong className="font-medium text-zinc-400"> node 版</strong>复制后请把{" "}
-            <code className="rounded bg-zinc-900 px-1">args</code> 里的路径改成你电脑上{" "}
-            <code className="rounded bg-zinc-900 px-1">packages/mcp-server/dist/index.js</code>{" "}
-            的<strong className="font-medium text-zinc-400">绝对路径</strong>（也可在 Web 部署里配置{" "}
+            ). If you already have other{" "}
+            <code className="rounded bg-zinc-900 px-1">mcpServers</code>,{" "}
+            <strong className="font-medium text-zinc-400">merge</strong>: only add the{" "}
+            <code className="rounded bg-zinc-900 px-1">agentmesh</code> entry—do not replace the whole
+            file.
+            <strong className="font-medium text-zinc-400"> Node build</strong>: after copying, set{" "}
+            <code className="rounded bg-zinc-900 px-1">args</code> to the{" "}
+            <strong className="font-medium text-zinc-400">absolute path</strong> of{" "}
+            <code className="rounded bg-zinc-900 px-1">packages/mcp-server/dist/index.js</code> on
+            your machine (or pre-fill via{" "}
             <code className="rounded bg-zinc-900 px-1">NEXT_PUBLIC_MCP_DIST_ABSOLUTE_FOR_SNIPPET</code>{" "}
-            预填），并先执行{" "}
-            <code className="rounded bg-zinc-900 px-1">npm run build -w @agentmesh/mcp-server</code>。
-            <strong className="font-medium text-zinc-400"> npx 版</strong>在包未发布时会 404，见{" "}
-            <code className="rounded bg-zinc-900 px-1">packages/mcp-server/README.md</code>。
+            in your web deploy), and run{" "}
+            <code className="rounded bg-zinc-900 px-1">npm run build -w @agentmesh/mcp-server</code>.{" "}
+            <strong className="font-medium text-zinc-400">npx</strong> returns 404 until the package
+            is published—see{" "}
+            <code className="rounded bg-zinc-900 px-1">packages/mcp-server/README.md</code>.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">
@@ -407,14 +412,14 @@ function WorkspaceHomePageContent() {
               className="rounded border border-violet-600 bg-violet-950/40 px-3 py-2 text-xs text-violet-100 hover:bg-violet-900/50"
               onClick={() => void copyText("binding", agentmeshBindingJson)}
             >
-              {copied === "binding" ? "已复制 .agentmesh.json" : "复制 .agentmesh.json 模板"}
+              {copied === "binding" ? "Copied .agentmesh.json" : "Copy .agentmesh.json template"}
             </button>
             <button
               type="button"
               className="rounded border border-zinc-600 px-3 py-2 text-xs hover:bg-zinc-900"
               onClick={() => void copyText("ws", wsId)}
             >
-              {copied === "ws" ? "已复制 Workspace ID" : "仅复制 Workspace ID"}
+              {copied === "ws" ? "Copied workspace ID" : "Copy workspace ID only"}
             </button>
             <button
               type="button"
@@ -423,8 +428,8 @@ function WorkspaceHomePageContent() {
               onClick={() => void copyText("token", token)}
             >
               {copied === "token"
-                ? "已复制 Context Token"
-                : "复制 Token → 贴到 export AGENTMESH_TOKEN"}
+                ? "Copied context token"
+                : "Copy token for export AGENTMESH_TOKEN"}
             </button>
           </div>
           <pre className="mt-2 max-h-32 overflow-auto rounded border border-zinc-800 bg-black/40 p-2 text-[10px] text-zinc-500">
@@ -432,24 +437,25 @@ function WorkspaceHomePageContent() {
           </pre>
           {!token ? (
             <p className="mt-2 text-xs text-amber-200/90">
-              当前账号未返回 context token，请确认已登录且为本 Workspace 成员。
+              No context token for this account—confirm you are signed in and are a member of this
+              workspace.
             </p>
           ) : null}
 
           <div className="mt-4">
             <h3 className="text-xs font-medium uppercase text-zinc-500">
-              MCP 配置示例（stdio · 任意兼容宿主）
+              MCP sample (stdio · any compatible host)
             </h3>
             <pre className="mt-2 max-h-48 overflow-auto rounded border border-zinc-800 bg-black/40 p-3 text-[11px] text-zinc-400">
               {mcpSnippet}
             </pre>
             <p className="mt-2 text-[11px] text-zinc-600">
-              Monorepo 本地开发可将 <code className="rounded bg-zinc-900 px-1">command</code>{" "}
-              改成指向本仓库 <code className="rounded bg-zinc-900 px-1">packages/mcp-server</code>{" "}
-              构建后的入口。服务端需配置{" "}
+              For monorepo dev you can point <code className="rounded bg-zinc-900 px-1">command</code>{" "}
+              at the built entry under{" "}
+              <code className="rounded bg-zinc-900 px-1">packages/mcp-server</code>. Set{" "}
               <code className="rounded bg-zinc-900 px-1">OPENAI_API_KEY</code> /{" "}
-              <code className="rounded bg-zinc-900 px-1">GEMINI_API_KEY</code>{" "}
-              以获得更好的嵌入质量。
+              <code className="rounded bg-zinc-900 px-1">GEMINI_API_KEY</code> on the server for
+              better embeddings.
             </p>
           </div>
             </div>
@@ -457,17 +463,19 @@ function WorkspaceHomePageContent() {
         </details>
 
         <section className="rounded-lg border border-zinc-800 p-4">
-          <h2 className="text-sm font-medium text-zinc-400">邀请协作者</h2>
+          <h2 className="text-sm font-medium text-zinc-400">Invite collaborators</h2>
           <p className="mt-1 text-xs text-zinc-600">
-            填写对方的 <strong className="font-medium text-zinc-500">handle</strong> 或<strong className="font-medium text-zinc-500"> 任意邮箱</strong>（无需已注册）。
-            已注册用户会收到带接受链接的邮件；未注册邮箱同样会收到邮件，点开可先注册再自动加入。需配置{" "}
-            <code className="text-zinc-500">RESEND_API_KEY</code> 发信；否则 API 会返回{" "}
-            <code className="text-zinc-500">acceptUrl</code> 供手动转发。Dashboard「消息」仍处理待处理邀请。
+            Enter their <strong className="font-medium text-zinc-500">handle</strong> or{" "}
+            <strong className="font-medium text-zinc-500">any email</strong> (they need not be
+            registered yet). Registered users get an email with an accept link; new emails get mail
+            too and can sign up from the link. Configure <code className="text-zinc-500">RESEND_API_KEY</code>{" "}
+            to send mail; otherwise the API returns <code className="text-zinc-500">acceptUrl</code>{" "}
+            to share manually. Pending invites also appear under Dashboard → Inbox.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <input
               className="min-w-[200px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-              placeholder="handle（如 bob）或邮箱"
+              placeholder="handle (e.g. bob) or email"
               value={inviteHandle}
               onChange={(e) => setInviteHandle(e.target.value)}
             />
@@ -476,7 +484,7 @@ function WorkspaceHomePageContent() {
               className="rounded bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-white"
               onClick={() => void sendWorkspaceInvite()}
             >
-              发送邀请
+              Send invite
             </button>
           </div>
           {inviteOk ? (
@@ -488,12 +496,12 @@ function WorkspaceHomePageContent() {
 
         <details className="rounded-lg border border-zinc-800">
           <summary className="cursor-pointer select-none p-4 text-sm font-medium text-zinc-400">
-            索引与健康检查（跨项目检索）
+            Index & health check (cross-project search)
           </summary>
           <div className="space-y-4 border-t border-zinc-800 p-4">
             <p className="text-xs text-zinc-600">
-              成员通过 IDE 或网页导入同步后，可在此抽检 <code className="rounded bg-zinc-900 px-1">context/query</code>{" "}
-              语义检索是否正常。
+              After syncing from an IDE or the web UI, spot-check{" "}
+              <code className="rounded bg-zinc-900 px-1">context/query</code> here
             </p>
             <div>
               <input
@@ -506,7 +514,7 @@ function WorkspaceHomePageContent() {
                 className="mt-2 rounded border border-zinc-600 px-3 py-2 text-sm hover:bg-zinc-900"
                 onClick={() => void runQuery()}
               >
-                运行 context/query
+                Run context/query
               </button>
               {hits ? (
                 <pre className="mt-3 max-h-80 min-w-0 max-w-full overflow-auto break-words rounded bg-black/40 p-3 text-xs whitespace-pre-wrap">
@@ -526,7 +534,7 @@ function WorkspaceHomePageContent() {
         />
 
         <section className="rounded-lg border border-zinc-800 p-3">
-          <h3 className="text-xs font-semibold uppercase text-zinc-500">成员</h3>
+          <h3 className="text-xs font-semibold uppercase text-zinc-500">Members</h3>
           <ul className="mt-2 space-y-2 text-sm">
             {ws.members.map((m) => (
               <li key={m.id}>
@@ -536,22 +544,23 @@ function WorkspaceHomePageContent() {
             ))}
           </ul>
           <p className="mt-2 text-[11px] leading-relaxed text-zinc-600">
-            通过邀请码或<strong className="font-medium text-zinc-500">对方账号 handle</strong>
-            邀请（见主栏）。接受后即可用自己的 Context Token 通过 CLI / MCP / 可选扩展同步。
+            Invite via invite code or the other person’s{" "}
+            <strong className="font-medium text-zinc-500">handle</strong> (main column). After they
+            accept, they can use their Context Token with CLI / MCP / the optional extension.
           </p>
         </section>
 
         <section className="rounded-lg border border-zinc-800 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-xs font-semibold uppercase text-zinc-500">
-              Projects（云端索引状态）
+              Projects (cloud index status)
             </h3>
             <button
               type="button"
               className="rounded border border-zinc-700 px-2 py-1 text-[10px] text-zinc-400 hover:bg-zinc-900"
               onClick={() => void refresh()}
             >
-              刷新状态
+              Refresh
             </button>
           </div>
           <ul className="mt-2 space-y-3 text-sm">
@@ -587,19 +596,19 @@ function WorkspaceHomePageContent() {
                     <span className="font-medium">{p.name}</span>
                     {mine ? (
                       <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400">
-                        我的项目
+                        Mine
                       </span>
                     ) : null}
                   </div>
                   <div className="font-mono text-[10px] text-zinc-500">{p.id}</div>
                   <div className={`mt-1 text-xs font-medium ${statusClass}`}>
-                    索引：{p.indexingStatus}
+                    Index: {p.indexingStatus}
                   </div>
                   <div className="mt-0.5 text-[10px] leading-snug text-zinc-500">
                     {indexingProgressHint(p.indexingStatus)}
                   </div>
                   <div className="mt-0.5 text-[11px] text-zinc-500">
-                    上次同步：{formatSyncedAt(p.lastSyncedAt)}
+                    Last sync: {formatSyncedAt(p.lastSyncedAt)}
                   </div>
                   {fr ? (
                     <div className={`mt-1 text-[10px] leading-snug ${frClass}`}>{fr.line}</div>
@@ -609,13 +618,14 @@ function WorkspaceHomePageContent() {
                       <span className="font-medium">lastError: </span>
                       {p.indexError}
                       <p className="mt-1 text-red-300/80">
-                        可在本地再次执行 Push / 保存触发同步，或稍后点击刷新本页；若持续失败请检查日志与配额。
+                        Try pushing again from your machine or sync from the IDE, then refresh. If it
+                        keeps failing, check logs and provider quotas.
                       </p>
                     </div>
                   ) : null}
                   <div className="mt-1 text-[10px] text-zinc-600">
-                    共享：{p.sharingEnabled !== false ? "开" : "关"} · 文件树共享{" "}
-                    {p.fileTreeShared !== false ? "开" : "关"}
+                    Sharing: {p.sharingEnabled !== false ? "on" : "off"} · file tree{" "}
+                    {p.fileTreeShared !== false ? "on" : "off"}
                   </div>
                   <div className="mt-1 text-xs text-zinc-600 line-clamp-3">
                     {p.summary ?? "—"}
@@ -625,7 +635,7 @@ function WorkspaceHomePageContent() {
             })}
           </ul>
           {ws.projects.length === 0 ? (
-            <p className="text-xs text-zinc-500">暂无；可从上方「导入 GitHub 仓库」添加。</p>
+            <p className="text-xs text-zinc-500">None yet—use “Import GitHub repo” above.</p>
           ) : null}
         </section>
       </aside>

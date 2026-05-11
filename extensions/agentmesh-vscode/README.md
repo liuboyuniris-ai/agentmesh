@@ -18,7 +18,7 @@ Open `extensions/agentmesh-vscode` in VS Code / Cursor, **Run → Start Debuggin
 
 ## Configure
 
-1. In your **project root**, add `.agentmesh.json` from the Workspace web console (高级 → 复制模板).
+1. In your **project root**, add `.agentmesh.json` from the Workspace web console (Advanced → copy template).
 2. Set **`AGENTMESH_TOKEN`** in the environment before launching the editor, **or** set `agentmesh.contextToken` in workspace settings.
 3. **Push to cloud:** command **AgentMesh: Push to Cloud** or keybinding **⌘⇧Y** / **Ctrl+Shift+Y**.
 4. Optional: enable **`agentmesh.syncOnSave`** for debounced auto-sync after save. After the **first successful sync**, the extension may ask whether to turn this on.

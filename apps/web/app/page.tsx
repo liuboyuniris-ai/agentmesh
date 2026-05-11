@@ -6,23 +6,24 @@ export default function HomePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">AgentMesh</h1>
         <p className="mt-2 text-zinc-400">
-          主流程：<strong className="font-medium text-zinc-300">登录 → 新建 Workspace → GitHub 授权 →
-          选择仓库</strong>
-          ，代码会自动进入 Workspace 并建立索引。CLI / MCP / Token 等见{" "}
+          Main flow:{" "}
+          <strong className="font-medium text-zinc-300">
+            Log in → Create a workspace → Authorize GitHub → Pick a repo
+          </strong>
+          . Code is imported into the workspace and indexed automatically. CLI / MCP / tokens are
+          in the{" "}
           <Link className="text-blue-400 underline underline-offset-4" href="/settings/advanced/docs">
-            高级文档
+            developer docs
           </Link>
-          。
+          .
         </p>
       </div>
       <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4 text-sm">
-        <p className="mb-3 text-xs font-medium uppercase text-zinc-500">
-          自建部署（本仓库）
-        </p>
+        <p className="mb-3 text-xs font-medium uppercase text-zinc-500">Self-host (this repo)</p>
         <ol className="list-decimal space-y-2 pl-5 text-zinc-300">
           <li>
-            复制 <code className="rounded bg-zinc-800 px-1">env.example</code> →{" "}
-            <code className="rounded bg-zinc-800 px-1">.env</code>，配置数据库与可选{" "}
+            Copy <code className="rounded bg-zinc-800 px-1">env.example</code> to{" "}
+            <code className="rounded bg-zinc-800 px-1">.env</code>; set the database and optional{" "}
             <code className="rounded bg-zinc-800 px-1">OPENAI_API_KEY</code>
           </li>
           <li>
@@ -34,8 +35,11 @@ export default function HomePage() {
             <code className="rounded bg-zinc-800 px-1">npm run dev</code>
           </li>
           <li>
-            打开 <Link className="text-blue-400 underline" href="/login">登录 / 注册</Link>
-            ，在 Dashboard 创建 Workspace 并按引导连接 GitHub。
+            Open{" "}
+            <Link className="text-blue-400 underline" href="/login">
+              Log in / Register
+            </Link>
+            , create a workspace from the Dashboard, and follow the flow to connect GitHub.
           </li>
         </ol>
       </div>
@@ -43,7 +47,7 @@ export default function HomePage() {
         className="text-blue-400 underline underline-offset-4"
         href="/login"
       >
-        登录 / 注册 →
+        Log in / Register →
       </Link>
     </main>
   );

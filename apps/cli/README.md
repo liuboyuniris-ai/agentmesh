@@ -46,7 +46,7 @@ npx agentmesh-sync init --workspace-id <id> [--api-base-url <url>] [--token <con
 npx agentmesh-sync connect --workspace-id <id> --token <token> [--api-base-url <url>]
 ```
 
-Use the Workspace 控制台复制的 **Context Token** 作为 `AGENTMESH_TOKEN` / `Authorization: Bearer …`（MCP 与 CLI `push` 同一令牌；勿提交到 Git）。
+Use the **Context Token** copied from the Workspace console as `AGENTMESH_TOKEN` / `Authorization: Bearer …` (same token for MCP and CLI `push`; never commit it).
 
 ## Commands
 

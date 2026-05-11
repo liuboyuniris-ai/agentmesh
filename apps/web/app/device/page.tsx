@@ -71,28 +71,28 @@ function DeviceApproveInner() {
       setErr(errBody);
       return;
     }
-    setMsg("已授权 VS Code / 本地工具。可关闭此页。");
+    setMsg("Device authorized (VS Code / local tool). You can close this page.");
   }
 
   return (
     <div className="mx-auto max-w-lg space-y-4 p-8 text-zinc-200">
-      <h1 className="text-lg font-semibold">设备授权</h1>
+      <h1 className="text-lg font-semibold">Device authorization</h1>
       <p className="text-sm text-zinc-400">
-        在编辑器里启动「浏览器登录」后，将显示的配对码填在下方，并选择要授权的
-        Workspace。完成后面板会把成员 Token 下发给本地扩展。
+        After you start browser login from the editor, enter the pairing code below and pick the
+        workspace to authorize. The extension will receive the member token.
       </p>
 
       {loading ? (
-        <p className="text-sm text-zinc-500">加载 Workspace 列表…</p>
+        <p className="text-sm text-zinc-500">Loading workspaces…</p>
       ) : null}
 
       <label className="block text-sm">
-        <span className="text-zinc-500">配对码</span>
+        <span className="text-zinc-500">User code</span>
         <input
           className="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 font-mono text-sm tracking-wider"
           value={userCode}
           onChange={(e) => setUserCode(e.target.value)}
-          placeholder="例如 ABCD-EFGH"
+          placeholder="e.g. ABCD-EFGH"
           autoComplete="off"
         />
       </label>
@@ -104,7 +104,7 @@ function DeviceApproveInner() {
           value={workspaceId}
           onChange={(e) => setWorkspaceId(e.target.value)}
         >
-          <option value="">选择…</option>
+          <option value="">Choose…</option>
           {workspaces.map((w) => (
             <option key={w.workspaceId} value={w.workspaceId}>
               {w.name} ({w.role})
@@ -119,7 +119,7 @@ function DeviceApproveInner() {
         disabled={!userCode.trim() || !workspaceId}
         onClick={() => void approve()}
       >
-        授权设备
+        Authorize device
       </button>
 
       {msg ? <p className="text-sm text-emerald-400">{msg}</p> : null}
@@ -130,7 +130,7 @@ function DeviceApproveInner() {
 
 export default function DevicePage() {
   return (
-    <Suspense fallback={<div className="p-8 text-zinc-400">加载中…</div>}>
+    <Suspense fallback={<div className="p-8 text-zinc-400">Loading…</div>}>
       <DeviceApproveInner />
     </Suspense>
   );

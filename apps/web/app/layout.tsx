@@ -5,14 +5,14 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "AgentMesh",
   description:
-    "Workspace 上下文服务：CLI、MCP 与 HTTP 接入；与编辑器无关，同步、索索引并与协作者共享检索。",
+    "Workspace context service: CLI, MCP, and HTTP; editor-agnostic sync, indexing, and shared retrieval for your team.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>
         <AppNav />
         {children}

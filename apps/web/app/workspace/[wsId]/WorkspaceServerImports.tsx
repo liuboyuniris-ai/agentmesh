@@ -84,7 +84,7 @@ export function WorkspaceServerImports(props: {
     const p = new URLSearchParams(window.location.search);
     if (p.get("github") === "connected") {
       setGhBanner(
-        "GitHub 已连接：可在下方「从 GitHub 导入」中选择仓库并一键导入（无需粘贴 Token）。"
+        "GitHub connected—pick a repo under “Import from GitHub” below (no manual token)."
       );
       setGithub((c) => ({ ...c, connected: true }));
       window.history.replaceState({}, "", window.location.pathname);
@@ -108,7 +108,9 @@ export function WorkspaceServerImports(props: {
       const body = await res.text();
       if (!res.ok) return setErr(body);
       onImported();
-      setGhBanner(`已导入「${pickedRepo.full_name}」，Clone / 索引已完成或进行中。`);
+      setGhBanner(
+        `Imported “${pickedRepo.full_name}”—clone / indexing finished or in progress.`
+      );
     } finally {
       setImportBusy(false);
     }
@@ -131,7 +133,7 @@ export function WorkspaceServerImports(props: {
 
   async function uploadZipFile(file: File) {
     if (!file.name.toLowerCase().endsWith(".zip")) {
-      setErr("请上传 .zip 文件");
+      setErr("Please upload a .zip file");
       return;
     }
     setZipBusy(true);
@@ -187,7 +189,7 @@ export function WorkspaceServerImports(props: {
     }
 
     if (!Object.keys(files).length) {
-      setErr("未找到可上传的文本文件，或文件超过单文件大小限制。");
+      setErr("No uploadable text files found, or files exceed the per-file size limit.");
       return;
     }
 
@@ -222,7 +224,7 @@ export function WorkspaceServerImports(props: {
   return (
     <details className="rounded-lg border border-zinc-800">
       <summary className="cursor-pointer select-none p-4 text-sm font-medium text-zinc-400">
-        可选：从服务器导入项目（无 IDE 时使用）
+        Optional: server-side import (no IDE)
       </summary>
       <div className="space-y-6 border-t border-zinc-800 p-4">
         {err ? (
@@ -237,20 +239,20 @@ export function WorkspaceServerImports(props: {
         ) : null}
 
         <section className="rounded-lg border border-zinc-800 p-4">
-          <h2 className="text-sm font-medium text-zinc-400">从 GitHub 导入</h2>
+          <h2 className="text-sm font-medium text-zinc-400">Import from GitHub</h2>
           <p className="mt-1 text-xs text-zinc-600">
-            需在{" "}
+            Sign in on the{" "}
             <Link className="text-blue-400 underline" href="/dashboard">
               Dashboard
             </Link>{" "}
-            登录并「连接 GitHub」。
+            and connect GitHub first.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a
               className="rounded bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-white"
               href={`/api/auth/github/start?return_to=${encodeURIComponent(`/workspace/${wsId}`)}`}
             >
-              {github.connected ? "重新授权 GitHub" : "连接 GitHub 帐户"}
+              {github.connected ? "Re-authorize GitHub" : "Connect GitHub account"}
             </a>
             <button
               type="button"
@@ -258,11 +260,11 @@ export function WorkspaceServerImports(props: {
               className="rounded border border-zinc-600 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-40"
               onClick={() => void loadGhRepos(1)}
             >
-              加载我的仓库列表
+              Load my repositories
             </button>
           </div>
           <p className="mt-2 text-xs text-zinc-500">
-            OAuth：{github.connected ? "已连接" : "未连接"}
+            OAuth: {github.connected ? "Connected" : "Not connected"}
             {github.scope ? (
               <>
                 {" "}
@@ -272,7 +274,7 @@ export function WorkspaceServerImports(props: {
           </p>
           {ghRepos.length ? (
             <div className="mt-4 space-y-2">
-              <label className="text-xs text-zinc-500">选择要导入的仓库</label>
+              <label className="text-xs text-zinc-500">Repository to import</label>
               <select
                 className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
                 value={pickedRepo?.full_name ?? ""}
@@ -296,7 +298,7 @@ export function WorkspaceServerImports(props: {
                   className="rounded bg-emerald-700 px-3 py-2 text-sm hover:bg-emerald-600 disabled:opacity-40"
                   onClick={() => void importGithubPicked()}
                 >
-                  {importBusy ? "导入中…" : "导入选中仓库并索引"}
+                  {importBusy ? "Importing…" : "Import selected & index"}
                 </button>
                 <button
                   type="button"
@@ -304,7 +306,7 @@ export function WorkspaceServerImports(props: {
                   className="rounded border border-zinc-600 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-40"
                   onClick={() => void loadGhRepos(ghPage - 1)}
                 >
-                  上一页
+                  Previous
                 </button>
                 <button
                   type="button"
@@ -312,7 +314,7 @@ export function WorkspaceServerImports(props: {
                   className="rounded border border-zinc-600 px-3 py-2 text-sm hover:bg-zinc-900 disabled:opacity-40"
                   onClick={() => void loadGhRepos(ghPage + 1)}
                 >
-                  下一页
+                  Next
                 </button>
               </div>
             </div>
@@ -320,14 +322,13 @@ export function WorkspaceServerImports(props: {
         </section>
 
         <section className="rounded-lg border border-zinc-800 p-4">
-          <h2 className="text-sm font-medium text-zinc-400">本地项目（浏览器选文件夹）</h2>
+          <h2 className="text-sm font-medium text-zinc-400">Local folder (browser)</h2>
           <p className="mt-1 text-xs text-zinc-600">
-            最多 {LOCAL_UPLOAD_MAX_FILES} 个文件，单文件 ≤{" "}
-            {Math.round(LOCAL_UPLOAD_MAX_BYTES / 1000)}KB。
+            Up to {LOCAL_UPLOAD_MAX_FILES} files, {Math.round(LOCAL_UPLOAD_MAX_BYTES / 1000)}KB each.
           </p>
           <input
             className="mt-2 w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-            placeholder="项目显示名称"
+            placeholder="Display name"
             value={localProjName}
             onChange={(e) => setLocalProjName(e.target.value)}
           />
@@ -340,16 +341,16 @@ export function WorkspaceServerImports(props: {
             onChange={(e) => void onLocalFolderPick(e)}
           />
           {localBusy ? (
-            <p className="mt-2 text-xs text-zinc-500">正在上传并索引…</p>
+            <p className="mt-2 text-xs text-zinc-500">Uploading & indexing…</p>
           ) : null}
         </section>
 
         <section className="rounded-lg border border-zinc-800 p-4">
-          <h2 className="text-sm font-medium text-zinc-400">ZIP 拖拽上传</h2>
-          <p className="mt-1 text-xs text-zinc-600">≤8MB zip、最多约 200 个文本文件。</p>
+          <h2 className="text-sm font-medium text-zinc-400">ZIP upload</h2>
+          <p className="mt-1 text-xs text-zinc-600">≤8MB zip, ~200 text files.</p>
           <input
             className="mt-2 w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-            placeholder="解压后的项目显示名称"
+            placeholder="Display name after extract"
             value={zipProjName}
             onChange={(e) => setZipProjName(e.target.value)}
           />
@@ -379,7 +380,7 @@ export function WorkspaceServerImports(props: {
             }
             role="presentation"
           >
-            {zipBusy ? "正在解压并索引…" : "拖入 .zip 到此处，或点击选择文件"}
+            {zipBusy ? "Extracting & indexing…" : "Drop a .zip here, or click to choose"}
             <input
               id={`zip-input-server-${wsId}`}
               type="file"
@@ -396,9 +397,9 @@ export function WorkspaceServerImports(props: {
         </section>
 
         <section className="rounded-lg border border-zinc-800 p-4">
-          <h2 className="text-sm font-medium text-zinc-400">高级：手动 Git URL</h2>
+          <h2 className="text-sm font-medium text-zinc-400">Advanced: raw Git URL</h2>
           <p className="mt-1 text-xs text-zinc-600">
-            服务器需安装 <code className="rounded bg-zinc-900 px-1">git</code>。
+            Server must have <code className="rounded bg-zinc-900 px-1">git</code> installed.
           </p>
           <input
             className="mt-3 w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
@@ -407,7 +408,7 @@ export function WorkspaceServerImports(props: {
           />
           <input
             className="mt-2 w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-            placeholder="显示名称"
+            placeholder="Display name"
             value={projName}
             onChange={(e) => setProjName(e.target.value)}
           />
@@ -416,7 +417,7 @@ export function WorkspaceServerImports(props: {
             className="mt-3 rounded bg-emerald-700 px-3 py-2 text-sm hover:bg-emerald-600"
             onClick={() => void connectGit()}
           >
-            Clone &amp; 索引
+            Clone &amp; index
           </button>
         </section>
       </div>

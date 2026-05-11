@@ -15,9 +15,9 @@ type Item = {
 function sourceHint(st: string | null): string {
   switch (st) {
     case "git":
-      return "Git 仓库";
+      return "Git repo";
     case "local":
-      return "本机推送";
+      return "Local push";
     case "live_agent":
       return "Live";
     default:
@@ -60,7 +60,7 @@ export function WorkspaceActivityFeed({
     <section className="rounded-lg border border-zinc-800 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-xs font-semibold uppercase text-zinc-500">
-          更新记录
+          Activity
         </h3>
         <button
           type="button"
@@ -70,17 +70,20 @@ export function WorkspaceActivityFeed({
             void load();
           }}
         >
-          刷新
+          Refresh
         </button>
       </div>
       <p className="mt-1 text-[10px] leading-snug text-zinc-600">
-        谁在何时触发了<strong className="font-medium text-zinc-500">整项目重新索引</strong>
-        ；索引内容不是实时镜像远端。新鲜度见各项目卡片与下方「就绪检查」。
+        Who triggered a <strong className="font-medium text-zinc-500">full re-index</strong> and
+        when. The index is not a live mirror of the remote. See project cards and the readiness
+        checklist for freshness.
       </p>
       {loading ? (
-        <p className="mt-3 text-xs text-zinc-500">加载中…</p>
+        <p className="mt-3 text-xs text-zinc-500">Loading…</p>
       ) : items.length === 0 ? (
-        <p className="mt-3 text-xs text-zinc-600">暂无记录；完成一次导入或索引后会出现。</p>
+        <p className="mt-3 text-xs text-zinc-600">
+          No entries yet. Import or index a project to see activity here.
+        </p>
       ) : (
         <ul className="mt-3 max-h-64 space-y-2 overflow-auto">
           {items.map((it) => (
@@ -95,7 +98,7 @@ export function WorkspaceActivityFeed({
                 </time>
               </div>
               <div className="mt-0.5 text-zinc-400">
-                <span className={it.kindLabel.includes("失败") ? "text-amber-200/90" : ""}>
+                <span className={it.kindLabel.toLowerCase().includes("fail") ? "text-amber-200/90" : ""}>
                   {it.kindLabel}
                 </span>
                 <span className="text-zinc-600"> · </span>

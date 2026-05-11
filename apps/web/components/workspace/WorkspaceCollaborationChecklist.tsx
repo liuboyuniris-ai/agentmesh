@@ -73,65 +73,78 @@ export function WorkspaceCollaborationChecklist({
   return (
     <section className="rounded-lg border border-emerald-900/35 bg-emerald-950/15 p-4">
       <h2 className="text-sm font-medium text-emerald-200/95">
-        协作检索 · 就绪检查
+        Collaborative search · readiness
       </h2>
       <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
-        MCP 只能搜<strong className="font-medium text-zinc-400">本 Workspace 里已进云并完成索引</strong>
-        的内容；下面三项需同时就绪，否则容易觉得「搜不到队友代码」。
+        MCP only searches{" "}
+        <strong className="font-medium text-zinc-400">
+          content that is in this workspace and fully indexed
+        </strong>
+        . All three items below should be true; otherwise it feels like “I can’t find my teammate’s
+        code.”
       </p>
       <ul className="mt-3 space-y-2">
         <Row ok>
-          你已在本 Workspace（无需额外操作）。
+          You are a member of this workspace (nothing else required).
         </Row>
         <Row ok={myReady}>
           {myReady ? (
-            <>你至少有一个项目<strong className="font-medium text-zinc-400">索引 ready</strong>，可被检索。</>
+            <>
+              You have at least one project with a <strong className="font-medium text-zinc-400">ready</strong>{" "}
+              index that can be searched.
+            </>
           ) : (
             <>
-              你还需要一个 <strong className="font-medium text-zinc-400">ready</strong> 的项目。
-              {myPending ? " 有项目仍在索引或失败，请查看下方卡片。" : null}{" "}
+              You still need a <strong className="font-medium text-zinc-400">ready</strong> project.
+              {myPending
+                ? " Some projects are still indexing or failed—see the cards below. "
+                : " "}
               <Link className="text-emerald-400 underline" href={`/workspace/${wsId}?onboarding=1`}>
-                去导入或推送
+                Import or push
               </Link>
-              。
+              .
             </>
           )}
         </Row>
         <Row ok={othersReady.length > 0}>
           {othersReady.length > 0 ? (
             <>
-              其他成员共有{" "}
-              <strong className="font-medium text-zinc-400">{othersReady.length}</strong>{" "}
-              个已共享且 ready 的项目可供检索
+              Other members share{" "}
+              <strong className="font-medium text-zinc-400">{othersReady.length}</strong> project(s)
+              that are <strong className="font-medium text-zinc-400">ready</strong> and searchable
               {othersTotal.length > othersReady.length
-                ? `（另有 ${othersTotal.length - othersReady.length} 个尚未 ready）`
+                ? ` (${othersTotal.length - othersReady.length} not ready yet)`
                 : ""}
-              。
+              .
               {staleOthers.length > 0 ? (
                 <span className="ml-1 text-amber-200/85">
-                  其中 {staleOthers.length} 个索引较旧，对方更新后需再同步。
+                  {staleOthers.length} index(es) are stale—ask them to sync after updates.
                 </span>
               ) : null}
             </>
           ) : (
             <>
-              目前<strong className="font-medium text-zinc-400">没有</strong>其他成员的 ready
-              共享项目——对方需导入或 push，且关闭共享会搜不到。
+              There are <strong className="font-medium text-zinc-400">no</strong> shared{" "}
+              <strong className="font-medium text-zinc-400">ready</strong> projects from other
+              members—they need to import or push. If they turn off sharing, MCP won’t return that
+              project.
             </>
           )}
         </Row>
         <Row ok={hasToken}>
           {hasToken ? (
             <>
-              已为你颁发 Context Token（展开「高级」可复制）。请在 Cursor / Claude 里配置{" "}
-              <strong className="font-medium text-zinc-400">MCP</strong>，否则 Agent 不会自动查云。
+              A Context Token was issued (open <strong>Advanced</strong> on the workspace page to
+              copy it). Configure <strong className="font-medium text-zinc-400">MCP</strong> in
+              Cursor / Claude; otherwise the agent will not query the cloud automatically.{" "}
               <Link className="ml-1 text-violet-400 underline" href="/settings/advanced/docs#collab-mainline">
-                协作主线
+                Collaboration guide
               </Link>
             </>
           ) : (
             <>
-              未检测到 Context Token，无法代表你调用 MCP。请确认已登录且为本空间成员。
+              No Context Token detected—you can’t call MCP on your behalf. Make sure you are logged
+              in and are a member of this workspace.
             </>
           )}
         </Row>

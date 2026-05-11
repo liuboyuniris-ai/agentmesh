@@ -550,11 +550,11 @@ async function executeSync(
     if (!opts.quiet) {
       if (newId && !hadProjectId) {
         const choice = await vscode.window.showInformationMessage(
-          "AgentMesh：首次同步完成，已保存云端 Project。是否在保存文件后自动同步？（设置项 agentmesh.syncOnSave）",
-          "开启自动同步",
-          "暂不"
+          "AgentMesh: first sync saved the cloud project. Enable sync when you save files? (agentmesh.syncOnSave)",
+          "Enable auto-sync",
+          "Not now"
         );
-        if (choice === "开启自动同步") {
+        if (choice === "Enable auto-sync") {
           await cfg.update(
             "syncOnSave",
             true,

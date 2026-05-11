@@ -29,11 +29,11 @@ export function describeIndexFreshness(params: {
   const tone = freshnessTone(ageMs);
   if (tone === null) {
     return {
-      line: "云端索引：完成时间未知（可刷新后重试）。",
+      line: "Cloud index: completion time unknown (try refreshing).",
       hint:
         params.sourceType === "git"
-          ? "更新流程：push → 控制台「从 GitHub 拉取最新并重新索引」。"
-          : "更新流程：本机 push / 扩展同步。",
+          ? "To update: push → “Pull latest from GitHub & re-index” in the console."
+          : "To update: push from your machine / use the VS Code extension.",
       tone: null,
     };
   }
@@ -41,30 +41,30 @@ export function describeIndexFreshness(params: {
   const hours = Math.round(ageMs / HOUR);
   const days = Math.floor(ageMs / DAY);
   const ageStr =
-    hours < 48 ? `约 ${hours} 小时前` : `约 ${days} 天前`;
+    hours < 48 ? `~${hours} hours ago` : `~${days} days ago`;
 
   const updateGit =
-    "当前为快照，不是实时：请先将改动 push 到 GitHub，再在此处「从 GitHub 拉取最新并重新索引」。";
+    "Snapshot, not live: push changes to GitHub first, then use “Pull latest from GitHub & re-index” here.";
   const updateLocal =
-    "当前为快照，不是实时：改代码后请在本机 `agentmesh-sync push` 或用扩展 Push（可开保存即同步）。";
+    "Snapshot, not live: after local edits run `agentmesh-sync push` or use the extension (optional sync-on-save).";
   const updateHint = params.sourceType === "git" ? updateGit : updateLocal;
 
   if (tone === "fresh") {
     return {
-      line: `云端索引较新（${ageStr} 更新）。`,
+      line: `Cloud index is recent (updated ${ageStr}).`,
       hint: updateHint,
       tone: "fresh",
     };
   }
   if (tone === "aging") {
     return {
-      line: `云端索引已有 ${ageStr} 未重建；队友 MCP 可能仍看到旧内容。`,
+      line: `Cloud index has not been rebuilt for ${ageStr}; teammates may still see older content via MCP.`,
       hint: updateHint,
       tone: "aging",
     };
   }
   return {
-    line: `云端索引已 ${ageStr} 未更新，强烈建议同步后再协作检索。`,
+    line: `Cloud index is ${ageStr} old—sync before relying on collaborative search.`,
     hint: updateHint,
     tone: "stale",
   };

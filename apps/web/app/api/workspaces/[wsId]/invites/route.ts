@@ -78,7 +78,7 @@ export async function POST(
     const user = await prisma.user.findUnique({ where: { id: h } });
     if (!user) {
       return NextResponse.json(
-        { error: "no user with this AgentMesh 账号" },
+        { error: "no user with this AgentMesh handle" },
         { status: 404 }
       );
     }

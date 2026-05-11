@@ -51,10 +51,11 @@ function RegisterForm() {
   return (
     <div className="mx-auto max-w-md space-y-6 p-8">
       <header>
-        <h1 className="text-xl font-semibold">注册</h1>
+        <h1 className="text-xl font-semibold">Register</h1>
         <p className="mt-1 text-xs text-zinc-500">
-          注册后自动登录。你的 <strong className="font-medium text-zinc-400">handle</strong>{" "}
-          即 AgentMesh 账号，他人可通过该账号向你发出 Workspace 邀请。
+          You’ll be signed in after registering. Your{" "}
+          <strong className="font-medium text-zinc-400">handle</strong> is your AgentMesh
+          username—others can invite you by it.
         </p>
       </header>
 
@@ -67,7 +68,7 @@ function RegisterForm() {
       <section className="space-y-3 rounded-lg border border-zinc-800 p-4">
         <input
           className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-          placeholder="账号 handle（小写字母开头，3–32）"
+          placeholder="Handle (lowercase letter first, 3–32 chars)"
           autoComplete="username"
           value={handle}
           onChange={(e) => setHandle(e.target.value)}
@@ -75,7 +76,7 @@ function RegisterForm() {
         <input
           type="password"
           className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-          placeholder="密码（≥6）"
+          placeholder="Password (≥6 characters)"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -83,7 +84,7 @@ function RegisterForm() {
         <input
           type="email"
           className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-          placeholder="Email（可选；通过邀请加入时请填写被邀请的邮箱）"
+          placeholder="Email (optional; use invited address when joining via invite)"
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -94,14 +95,14 @@ function RegisterForm() {
           className="w-full rounded bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500 disabled:opacity-50"
           onClick={() => void submit()}
         >
-          注册并登录
+          Register & sign in
         </button>
       </section>
 
       <p className="text-center text-sm text-zinc-500">
-        已有账号？{" "}
+        Already have an account?{" "}
         <Link href={`/login?next=${encodeURIComponent(next)}`} className="text-blue-400 underline">
-          登录
+          Log in
         </Link>
       </p>
     </div>
@@ -110,7 +111,7 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-zinc-400">加载中…</div>}>
+    <Suspense fallback={<div className="p-8 text-zinc-400">Loading…</div>}>
       <RegisterForm />
     </Suspense>
   );

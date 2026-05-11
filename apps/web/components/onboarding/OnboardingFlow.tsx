@@ -103,15 +103,16 @@ export function OnboardingFlow({ wsId, headers, onImported }: Props) {
   return (
     <div className="mx-auto max-w-lg space-y-8 p-8">
       <header>
-        <h1 className="text-xl font-semibold text-zinc-100">连接你的代码库</h1>
+        <h1 className="text-xl font-semibold text-zinc-100">Connect your repository</h1>
         <p className="mt-2 text-sm text-zinc-500">
-          共两步：授权 GitHub，然后选一个仓库导入。完成后云端会自动建索引——之后你和队友可用{" "}
-          <strong className="font-medium text-zinc-400">MCP</strong> 在各自编辑器里检索本 Workspace 内{" "}
-          <strong className="font-medium text-zinc-400">已同步、已开放共享</strong>的项目（详见{" "}
+          Two steps: authorize GitHub, then pick a repo. We index in the cloud—you and teammates can
+          use <strong className="font-medium text-zinc-400">MCP</strong> in each editor to search{" "}
+          <strong className="font-medium text-zinc-400">synced, shared</strong> projects in this
+          workspace (see the{" "}
           <Link className="text-blue-400 underline" href="/settings/advanced/docs#collab-mainline">
-            协作主线
+            collaboration guide
           </Link>
-          ）。
+          ).
         </p>
       </header>
 
@@ -127,8 +128,8 @@ export function OnboardingFlow({ wsId, headers, onImported }: Props) {
             ✓
           </span>
           <div>
-            <p className="font-medium text-zinc-200">Workspace 已创建</p>
-            <p className="mt-1 text-xs text-zinc-500">已加入本空间，无需其他设置。</p>
+            <p className="font-medium text-zinc-200">Workspace created</p>
+            <p className="mt-1 text-xs text-zinc-500">You’re in—nothing else required.</p>
           </div>
         </li>
 
@@ -143,19 +144,19 @@ export function OnboardingFlow({ wsId, headers, onImported }: Props) {
             {github.connected ? "✓" : "2"}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-zinc-200">连接 GitHub</p>
+            <p className="font-medium text-zinc-200">Connect GitHub</p>
             <p className="mt-1 text-xs text-zinc-500">
-              仅用于访问你授权的仓库；不会在浏览器里复制 Token。
+              Used only to access repos you authorize—we don’t paste tokens in the browser.
             </p>
             {!github.connected ? (
               <a
                 className="mt-3 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100"
                 href={githubStartHref}
               >
-                连接 GitHub
+                Connect GitHub
               </a>
             ) : (
-              <p className="mt-2 text-xs text-emerald-400">已连接</p>
+              <p className="mt-2 text-xs text-emerald-400">Connected</p>
             )}
           </div>
         </li>
@@ -171,22 +172,22 @@ export function OnboardingFlow({ wsId, headers, onImported }: Props) {
             3
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-zinc-200">选择仓库</p>
+            <p className="font-medium text-zinc-200">Choose a repository</p>
             {!github.connected ? (
-              <p className="mt-1 text-xs text-zinc-600">请先完成 GitHub 授权。</p>
+              <p className="mt-1 text-xs text-zinc-600">Finish GitHub authorization first.</p>
             ) : (
               <>
                 <input
                   className="mt-3 w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
-                  placeholder="搜索 owner/repo…"
+                  placeholder="Search owner/repo…"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                 />
                 <div className="mt-3 max-h-72 space-y-2 overflow-auto rounded border border-zinc-800">
                   {loadingRepos ? (
-                    <p className="p-4 text-xs text-zinc-500">加载仓库列表…</p>
+                    <p className="p-4 text-xs text-zinc-500">Loading repositories…</p>
                   ) : repos.length === 0 ? (
-                    <p className="p-4 text-xs text-zinc-500">没有匹配的仓库。</p>
+                    <p className="p-4 text-xs text-zinc-500">No matching repositories.</p>
                   ) : (
                     repos.map((r) => (
                       <div
@@ -209,7 +210,7 @@ export function OnboardingFlow({ wsId, headers, onImported }: Props) {
                           className="shrink-0 rounded border border-emerald-700/80 px-2 py-1 text-xs text-emerald-100 hover:bg-emerald-950/50 disabled:opacity-40"
                           onClick={() => void importRepo(r.fullName)}
                         >
-                          {importing === r.fullName ? "导入中…" : "导入"}
+                          {importing === r.fullName ? "Importing…" : "Import"}
                         </button>
                       </div>
                     ))
@@ -222,25 +223,32 @@ export function OnboardingFlow({ wsId, headers, onImported }: Props) {
       </ol>
 
       <div className="rounded-lg border border-zinc-700/80 bg-zinc-900/40 p-4">
-        <p className="text-xs font-medium text-zinc-300">和队友互相在 Agent 里读代码？</p>
+        <p className="text-xs font-medium text-zinc-300">Want agents to read each other’s code?</p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-[11px] leading-relaxed text-zinc-500">
-          <li>把人拉进<strong className="font-medium text-zinc-400">同一个 Workspace</strong>（邀请码/邀请链接）；</li>
-          <li>对方也要<strong className="font-medium text-zinc-400">导入或 push 自己的仓库</strong>，否则你搜不到；</li>
           <li>
-            双方在各自 Cursor / Claude 里配置{" "}
-            <strong className="font-medium text-zinc-400">MCP + Context Token</strong>（控制台「高级」有片段）。完整说明见{" "}
+            Add people to the <strong className="font-medium text-zinc-400">same workspace</strong>{" "}
+            (invite code or link).
+          </li>
+          <li>
+            They must <strong className="font-medium text-zinc-400">import or push their own repos</strong>—otherwise
+            you won’t find their files.
+          </li>
+          <li>
+            Everyone configures{" "}
+            <strong className="font-medium text-zinc-400">MCP + Context Token</strong> in Cursor /
+            Claude (snippets under Advanced). Full steps:{" "}
             <Link className="text-blue-400 underline" href="/settings/advanced/docs#collab-mainline">
-              文档 · 协作主线
+              docs · collaboration
             </Link>
-            。
+            .
           </li>
         </ul>
       </div>
 
       <p className="text-center text-[11px] text-zinc-600">
-        开发者工具见{" "}
+        Developer tools:{" "}
         <Link className="text-blue-400 underline" href="/settings/advanced/docs">
-          高级文档
+          docs
         </Link>
       </p>
     </div>

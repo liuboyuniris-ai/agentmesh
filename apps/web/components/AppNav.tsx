@@ -11,7 +11,7 @@ export function AppNav() {
           href="/settings/advanced/docs"
           className="text-zinc-400 underline-offset-4 hover:text-zinc-200 hover:underline"
         >
-          高级文档
+          Docs
         </Link>
         <Link
           href="/dashboard"
@@ -23,7 +23,7 @@ export function AppNav() {
           href="/login"
           className="ml-auto text-zinc-400 underline-offset-4 hover:text-zinc-200 hover:underline"
         >
-          登录
+          Log in
         </Link>
       </div>
     </nav>

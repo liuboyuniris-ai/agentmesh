@@ -58,7 +58,7 @@ export function ProjectSyncRow({
   if (!st) {
     return (
       <div className="rounded border border-zinc-800 p-3 text-xs text-zinc-500">
-        加载同步状态…
+        Loading sync status…
       </div>
     );
   }
@@ -74,12 +74,12 @@ export function ProjectSyncRow({
 
   const label =
     st.indexingStatus === "ready"
-      ? "已就绪"
+      ? "Ready"
       : st.indexingStatus === "error"
-        ? "同步失败"
+        ? "Sync failed"
         : st.indexingStatus === "indexing"
-          ? "正在索引…"
-          : "等待同步…";
+          ? "Indexing…"
+          : "Waiting for sync…";
 
   const fr =
     st.indexingStatus === "ready"
@@ -107,7 +107,7 @@ export function ProjectSyncRow({
       </div>
       {st.lastSyncedAt ? (
         <p className="mt-1 text-[11px] opacity-80">
-          最后完成：{new Date(st.lastSyncedAt).toLocaleString()}
+          Last completed: {new Date(st.lastSyncedAt).toLocaleString()}
         </p>
       ) : null}
       {fr ? (
@@ -127,7 +127,7 @@ export function ProjectSyncRow({
           className="mt-2 rounded border border-zinc-600 px-2 py-1 text-xs hover:bg-black/30"
           onClick={() => void retry()}
         >
-          重试同步
+          Retry sync
         </button>
       ) : null}
       {st.indexingStatus === "ready" && st.sourceType === "git" ? (
@@ -136,7 +136,7 @@ export function ProjectSyncRow({
           className="mt-2 rounded border border-emerald-800/80 px-2 py-1 text-xs text-emerald-100/95 hover:bg-emerald-950/40"
           onClick={() => void retry()}
         >
-          从 GitHub 拉取最新并重新索引
+          Pull latest from GitHub & re-index
         </button>
       ) : null}
     </div>

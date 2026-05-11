@@ -26,7 +26,7 @@ function InviteAcceptInner() {
     const t = token?.trim();
     if (!t) {
       setPhase("err");
-      setMessage("链接无效：缺少 token。");
+      setMessage("Invalid link: missing token.");
       return;
     }
 
@@ -96,13 +96,13 @@ function InviteAcceptInner() {
           const wid = j.workspaceId ?? null;
           setWorkspaceId(wid);
           setPhase("ok");
-          setMessage("已加入 Workspace，正在跳转…");
+          setMessage("Joined the workspace—redirecting…");
           if (wid) {
             router.replace(`/workspace/${wid}`);
           }
         } catch {
           setPhase("ok");
-          setMessage("已加入 Workspace。");
+          setMessage("Joined the workspace.");
         }
         return;
       }
@@ -111,7 +111,7 @@ function InviteAcceptInner() {
         const j = JSON.parse(bodyText) as { error?: string };
         if (j.error === "wrong_account") {
           setMessage(
-            "当前登录账号与邀请不匹配。请退出后使用邀请邮件中的账号登录或注册。"
+            "Signed-in account doesn’t match this invite. Sign out and use the account from the email."
           );
         } else {
           setMessage(j.error ?? bodyText.slice(0, 200));
@@ -128,12 +128,12 @@ function InviteAcceptInner() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center gap-4 p-8 text-zinc-200">
-      <h1 className="text-lg font-semibold">Workspace 邀请</h1>
+      <h1 className="text-lg font-semibold">Workspace invite</h1>
       {(phase === "checking" ||
         phase === "accepting" ||
         phase === "redirect_register" ||
         phase === "redirect_login") && (
-        <p className="text-sm text-zinc-400">正在处理…</p>
+        <p className="text-sm text-zinc-400">Working…</p>
       )}
       {phase === "ok" ? (
         <p className="text-sm text-emerald-400">{message}</p>
@@ -146,11 +146,11 @@ function InviteAcceptInner() {
           className="text-sm text-blue-400 underline"
           href={`/workspace/${workspaceId}`}
         >
-          若未自动跳转，点此进入控制台
+          If you weren’t redirected, open the workspace console
         </Link>
       ) : null}
       <Link className="text-xs text-zinc-500 underline" href="/dashboard">
-        返回 Dashboard
+        Back to Dashboard
       </Link>
     </div>
   );
@@ -158,7 +158,7 @@ function InviteAcceptInner() {
 
 export default function InviteAcceptPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-zinc-400">加载中…</div>}>
+    <Suspense fallback={<div className="p-8 text-zinc-400">Loading…</div>}>
       <InviteAcceptInner />
     </Suspense>
   );

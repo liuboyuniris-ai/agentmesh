@@ -75,21 +75,21 @@ function DashboardContent() {
     const p = new URLSearchParams(window.location.search);
     if (p.get("github") === "connected") {
       setOauthBanner(
-        "GitHub 已连接：在 Workspace 网页里从 GitHub 导入时将使用 OAuth token。"
+        "GitHub connected: importing from GitHub in the workspace UI will use your OAuth token."
       );
     }
     const ge = p.get("github_error");
     if (ge) {
       setOauthBanner(
-        `GitHub 连接失败（${ge}）。请检查回调 URL 是否包含 /api/auth/github/callback。`
+        `GitHub connection failed (${ge}). Check that the callback URL includes /api/auth/github/callback.`
       );
     }
     if (p.get("oidc") === "connected") {
-      setOauthBanner("已通过 Google / OIDC 登录。");
+      setOauthBanner("Signed in with Google / OIDC.");
     }
     const oe = p.get("oidc_error");
     if (oe) {
-      setOauthBanner(`OIDC 登录失败（${oe}）。请核对 IdP 与 OIDC_CLIENT_* 配置。`);
+      setOauthBanner(`OIDC sign-in failed (${oe}). Verify IdP and OIDC_CLIENT_* settings.`);
     }
   }, [hdr]);
 
@@ -149,7 +149,7 @@ function DashboardContent() {
     if (!res.ok) return setError(await res.text());
     const st = await fetch("/api/auth/github/status", { headers: hdr });
     if (st.ok) setGithub(await st.json());
-    setOauthBanner("已断开 GitHub OAuth。");
+    setOauthBanner("Disconnected GitHub OAuth.");
   }
 
   return (
@@ -158,12 +158,13 @@ function DashboardContent() {
         <div className="space-y-1">
           <h1 className="text-xl font-semibold">Dashboard</h1>
           <p className="text-xs text-zinc-500">
-            已登录为 <code className="rounded bg-zinc-900 px-1">{actorId}</code>
-            。主路径：新建 Workspace → 连接 GitHub → 选择仓库导入（无需配置 Token）。开发者工具见{" "}
+            Signed in as <code className="rounded bg-zinc-900 px-1">{actorId}</code>. Main path:
+            create a workspace → connect GitHub → pick a repo to import (no manual token setup).
+            Developer tools:{" "}
             <Link className="text-blue-400 underline" href="/settings/advanced/docs">
-              高级文档
+              docs
             </Link>
-            。
+            .
           </p>
         </div>
         <button
@@ -171,7 +172,7 @@ function DashboardContent() {
           className="rounded border border-zinc-600 px-3 py-2 text-sm text-zinc-400 hover:bg-zinc-900"
           onClick={() => void logout()}
         >
-          退出
+          Log out
         </button>
       </header>
 
@@ -188,25 +189,27 @@ function DashboardContent() {
       ) : null}
 
       <section className="space-y-3 rounded-lg border border-emerald-900/40 bg-emerald-950/15 p-4">
-        <h2 className="text-sm font-medium text-emerald-200">开始接入代码</h2>
+        <h2 className="text-sm font-medium text-emerald-200">Bring your code in</h2>
         <p className="text-xs leading-relaxed text-zinc-500">
-          点击上方 <strong className="text-zinc-400">+</strong> 创建 Workspace
-          后将自动进入引导：连接 GitHub 并选择一个仓库，系统会克隆并建立索引。多人协作时：同一
-          Workspace、各人导入/同步自己的仓库，并在各自编辑器配置{" "}
-          <strong className="font-medium text-zinc-400">MCP</strong>，才能在对话里检索队友已上云的项目（见{" "}
+          After you click <strong className="text-zinc-400">+</strong> to create a workspace you’ll
+          be guided: connect GitHub and pick a repo—we clone and index it. For teams: everyone
+          joins the same workspace, each imports/syncs their own repos, and each configures{" "}
+          <strong className="font-medium text-zinc-400">MCP</strong> in their editor so agents can
+          search what’s already in the cloud (see{" "}
           <Link className="text-emerald-400 underline" href="/settings/advanced/docs#collab-mainline">
-            协作主线
+            collaboration guide
           </Link>
-          ）。
+          ).
         </p>
         <p className="text-xs text-zinc-600">
-          CLI、HTTP、复制 MCP 片段：展开页面底部「高级 · 开发者集成」或打开完整高级文档。
+          CLI, HTTP, and MCP snippets: expand “Advanced · developer integrations” below or open the
+          full docs.
         </p>
       </section>
 
       <details className="rounded-lg border border-zinc-800 p-4">
         <summary className="cursor-pointer text-sm font-medium text-zinc-400">
-          高级 · 开发者集成（CLI / MCP / HTTP）
+          Advanced · developer integrations (CLI / MCP / HTTP)
         </summary>
         <div className="mt-4 space-y-4 border-t border-zinc-800 pt-4">
           <PlatformIntegrationCards workspaceId={rows[0]?.workspaceId ?? null} />
@@ -215,20 +218,21 @@ function DashboardContent() {
               className="inline-flex rounded border border-zinc-600 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-900"
               href="/settings/advanced/docs"
             >
-              完整高级文档
+              Full developer docs
             </Link>
           </div>
         </div>
       </details>
 
       <section className="space-y-3 rounded-lg border border-zinc-800 p-4">
-        <h2 className="text-sm font-medium text-zinc-400">消息 · Workspace 邀请</h2>
+        <h2 className="text-sm font-medium text-zinc-400">Inbox · workspace invites</h2>
         <p className="text-xs text-zinc-600">
-          其他成员可通过你的 AgentMesh 账号（当前 <code className="rounded bg-zinc-900 px-1">{actorId}</code>
-          ）向你发出邀请；在此处收到通知并选择接受或忽略。
+          Others can invite your AgentMesh account (
+          <code className="rounded bg-zinc-900 px-1">{actorId}</code>) to a workspace. Accept or
+          decline here.
         </p>
         {invitations.length === 0 ? (
-          <p className="text-sm text-zinc-500">暂无待处理邀请。</p>
+          <p className="text-sm text-zinc-500">No pending invitations.</p>
         ) : (
           <ul className="space-y-2">
             {invitations.map((inv) => (
@@ -239,7 +243,7 @@ function DashboardContent() {
                 <div>
                   <div className="font-medium">{inv.workspace.name}</div>
                   <div className="text-xs text-zinc-500">
-                    来自 <code className="rounded bg-zinc-900 px-1">{inv.inviterUserId}</code>
+                    From <code className="rounded bg-zinc-900 px-1">{inv.inviterUserId}</code>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -248,14 +252,14 @@ function DashboardContent() {
                     className="rounded bg-emerald-700 px-2 py-1 text-xs hover:bg-emerald-600"
                     onClick={() => void acceptInvite(inv.id)}
                   >
-                    接受
+                    Accept
                   </button>
                   <button
                     type="button"
                     className="rounded border border-zinc-600 px-2 py-1 text-xs hover:bg-zinc-900"
                     onClick={() => void declineInvite(inv.id)}
                   >
-                    拒绝
+                    Decline
                   </button>
                 </div>
               </li>
@@ -266,21 +270,19 @@ function DashboardContent() {
 
       <section className="space-y-3 rounded-lg border border-zinc-800 p-4">
         <h2 className="text-sm font-medium text-zinc-400">
-          GitHub（连接后可在网页上从 GitHub 导入仓库）
+          GitHub (connect to import repos from the web UI)
         </h2>
         <p className="text-xs leading-relaxed text-zinc-600">
-          与「使用 GitHub 登录」共用同一 GitHub OAuth App 时，请在 GitHub 开发者设置中同时填写回调：{" "}
-          <code className="rounded bg-zinc-900 px-1">/api/auth/github/callback</code>（连接
-          token）与{" "}
-          <code className="rounded bg-zinc-900 px-1">/api/auth/github/callback</code>
-          （登录）。
+          If you use the same GitHub OAuth app for “Sign in with GitHub”, register callback{" "}
+          <code className="rounded bg-zinc-900 px-1">/api/auth/github/callback</code> in GitHub
+          developer settings (used for both login and link token).
         </p>
         <div className="flex flex-wrap gap-2">
           <a
             className="rounded bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-white"
             href={githubOAuthStartHref}
           >
-            连接 GitHub（克隆仓库）
+            Connect GitHub (clone repos)
           </a>
           <button
             type="button"
@@ -288,11 +290,11 @@ function DashboardContent() {
             disabled={!github.connected}
             onClick={() => void disconnectGithub()}
           >
-            断开 GitHub
+            Disconnect GitHub
           </button>
         </div>
         <p className="text-xs text-zinc-500">
-          状态：{github.connected ? "已连接" : "未连接"}
+          Status: {github.connected ? "Connected" : "Not connected"}
           {github.scope ? (
             <>
               {" "}
@@ -306,8 +308,8 @@ function DashboardContent() {
       <section className="space-y-3 rounded-lg border border-violet-900/40 bg-violet-950/10 p-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-sm font-medium text-violet-200">新建 Workspace</h2>
-            <p className="mt-1 text-xs text-zinc-500">点击下方加号区域创建。</p>
+            <h2 className="text-sm font-medium text-violet-200">New workspace</h2>
+            <p className="mt-1 text-xs text-zinc-500">Use the + button below.</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -315,11 +317,11 @@ function DashboardContent() {
             className="min-w-[200px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="名称"
+            placeholder="Name"
           />
           <button
             type="button"
-            title="新建 Workspace"
+            title="Create workspace"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-lg font-light leading-none text-white hover:bg-blue-500"
             onClick={() => void createWs()}
           >
@@ -329,7 +331,7 @@ function DashboardContent() {
       </section>
 
       <section className="space-y-3 rounded-lg border border-zinc-800 p-4">
-        <h2 className="text-sm font-medium text-zinc-400">通过邀请码加入</h2>
+        <h2 className="text-sm font-medium text-zinc-400">Join with invite code</h2>
         <div className="flex flex-wrap gap-2">
           <input
             className="min-w-[200px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
@@ -342,13 +344,13 @@ function DashboardContent() {
             className="rounded border border-zinc-600 px-3 py-2 text-sm hover:bg-zinc-900"
             onClick={() => void joinWs()}
           >
-            加入
+            Join
           </button>
         </div>
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-medium text-zinc-400">我的 Workspace</h2>
+        <h2 className="text-sm font-medium text-zinc-400">My workspaces</h2>
         <ul className="divide-y divide-zinc-800 rounded-lg border border-zinc-800">
           {rows.map((r) => (
             <li
@@ -365,13 +367,13 @@ function DashboardContent() {
                 className="text-sm text-blue-400 underline"
                 href={`/workspace/${r.workspaceId}`}
               >
-                控制台
+                Open console
               </Link>
             </li>
           ))}
           {rows.length === 0 ? (
             <li className="p-4 text-sm text-zinc-500">
-              暂无。点击上方「+」创建，或让同事用你的账号发邀请。
+              None yet. Create one with + above, or ask a teammate to invite this account.
             </li>
           ) : null}
         </ul>
@@ -384,7 +386,7 @@ export default function DashboardPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-4xl p-8 text-zinc-400">加载中…</div>
+        <div className="mx-auto max-w-4xl p-8 text-zinc-400">Loading…</div>
       }
     >
       <DashboardContent />

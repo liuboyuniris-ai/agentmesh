@@ -176,7 +176,7 @@ program
   )
   .option(
     "--token <token>",
-    "Context token or console「同步专用 Token」; omit and use env AGENTMESH_TOKEN"
+    "Context token or console “sync token”; omit and use env AGENTMESH_TOKEN"
   )
   .action(
     async (opts: {
