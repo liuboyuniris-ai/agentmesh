@@ -40,11 +40,13 @@ type RawHit = {
 export function extractQueryTermsForKeywordBoost(query: string): string[] {
   const terms = new Set<string>();
   const lower = query.toLowerCase();
-  for (const m of lower.matchAll(/[a-z0-9][a-z0-9_/-]{1,}/g)) {
+  for (const m of Array.from(
+    lower.matchAll(/[a-z0-9][a-z0-9_/-]{1,}/g)
+  )) {
     const t = m[0].replace(/^[-/]+|[-/]+$/g, "");
     if (t.length >= 2) terms.add(t);
   }
-  for (const m of query.matchAll(/[\u4e00-\u9fff]{3,}/g)) {
+  for (const m of Array.from(query.matchAll(/[\u4e00-\u9fff]{3,}/g))) {
     terms.add(m[0]);
   }
   return [...terms];

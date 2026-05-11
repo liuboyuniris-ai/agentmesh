@@ -27,7 +27,7 @@ export function describeIndexFreshness(params: {
   if (params.indexingStatus !== "ready") return null;
   const ageMs = indexAgeMs(params.lastSyncedAt);
   const tone = freshnessTone(ageMs);
-  if (tone === null) {
+  if (tone === null || ageMs == null) {
     return {
       line: "Cloud index: completion time unknown (try refreshing).",
       hint:
